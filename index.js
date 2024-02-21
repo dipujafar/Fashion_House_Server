@@ -53,6 +53,18 @@ async function run() {
       }
     });
 
+    app.get('/cart/:email', async(req, res)=>{
+      try{
+        const email = req.params.email;
+        const query = {email: email};
+        const result = await cartCollection.find(query).toArray();
+        res.send(result)
+      }
+      catch{
+        //error handle
+     }
+    })
+
     app.post("/products", async(req, res)=>{
       try{
       const product = req.body;
