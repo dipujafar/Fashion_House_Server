@@ -29,7 +29,7 @@ async function run() {
     await client.connect();
 
     const productsCollection = client.db("fashionHouse").collection("products");
-    const cartCollection = client.db("cartDB").collection("cartData");
+    const cartCollection = client.db("fashionHouse").collection("cartData");
 
     app.get('/products', async (req,res)=>{
       try{
@@ -49,15 +49,63 @@ async function run() {
       res.send(result)
       }
       catch{
-         //error handle
+        
       }
     });
 
+    app.post("/products", async(req, res)=>{
+      try{
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
+      }
+      catch{
+        //error handle
+     }
+    })
+
     app.post("/cart", async(req,res)=>{
+      try{
       const product = req.body;
       const result = await cartCollection.insertOne(product);
       res.send(result);
+      }
+      catch{
+         
+      }
+    });
+
+    app.put("/products/:id", async(req,res)=>{
+      try{
+      const id = req.params.id;
+      const product = req.body;
+      const query = {_id: new ObjectId(id)};
+      const option = {upsert: true};
+      const UpdateProduct = {
+        $set:{
+          image: product?.image,
+          name: product?.name,
+          type: product?.type,
+          price: product?.price,
+          rating: product?.rating,
+          brandName: product?.brandName,
+          details: {
+            material: product?.details?.material,
+            color: product?.details?.color,
+            size: product?.details?.size,
+          }
+        }
+      }
+
+      const result = await productsCollection.updateOne(query,UpdateProduct,option);
+      res.send(result)
+    }
+    catch{
+      //error handle
+    }
     })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
