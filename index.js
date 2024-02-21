@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
 
     const productsCollection = client.db("fashionHouse").collection("products");
+    const cartCollection = client.db("cartDB").collection("cartData");
 
     app.get('/products', async (req,res)=>{
       try{
@@ -41,10 +42,21 @@ async function run() {
     });
 
     app.get('/products/:id', async (req, res)=>{
+      try{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)};
       const result = await productsCollection.findOne(query);
       res.send(result)
+      }
+      catch{
+         //error handle
+      }
+    });
+
+    app.post("/cart", async(req,res)=>{
+      const product = req.body;
+      const result = await cartCollection.insertOne(product);
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
